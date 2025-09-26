@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+python-multipart
+python-dotenv
+psycopg2-binary
+anthropic           # Library untuk Anthropic Claude API
+PyMuPDF==1.24.0     # Library untuk membaca teks dari PDF secara efisien
+Pillow              # Untuk memproses gambar dari halaman PDF
+pytesseract         # OCR engine wrapper (butuh Tesseract terpasang di OS)
+grpcio              # gRPC runtime
+grpcio-tools        # gRPC protoc plugin for Python
+boto3               # AWS S3 SDK for Python
