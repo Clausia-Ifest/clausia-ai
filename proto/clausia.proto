@@ -1,0 +1,92 @@
+syntax = "proto3";
+
+package clausia;
+
+service ClausIA {
+  rpc Extract (ExtractRequest) returns (ExtractResponse);
+  rpc ExtractMetadata (ExtractRequest) returns (ExtractMetadataResponse);
+  rpc Summarize (ExtractRequest) returns (SummarizeResponse);
+  rpc AnalyzeRisk (ExtractRequest) returns (AnalyzeRiskResponse);
+  rpc CheckCompliance (ExtractRequest) returns (CheckComplianceResponse);
+  rpc Chat (ChatRequest) returns (ChatResponse);
+}
+
+message FileContent {
+  bytes data = 1;
+  string filename = 2;
+}
+
+message S3Reference {
+  string object_key = 1;  // hash/key untuk object di S3
+}
+
+message OCRParams {
+  string lang = 1;    // e.g., "ind" or "eng"
+  int32 dpi = 2;      // e.g., 220
+  int32 oem = 3;      // 1
+  int32 psm = 4;      // 6
+  int32 max_pages = 5; // 0 means unlimited
+  bool parallel = 6;  // true
+}
+
+message ExtractRequest {
+  oneof source {
+    FileContent file = 1;      // direct file upload (existing)
+    S3Reference s3_ref = 3;    // S3 object reference (new)
+  }
+  // OCR params dihapus, server menggunakan default: lang=ind, dpi=220, oem=1, psm=6, parallel=true
+}
+
+message ExtractResponse {
+  string text = 1;
+}
+
+message ExtractMetadataResponse {
+  string metadata = 1;        // JSON string of grouped metadata
+  string content = 2;         // OCR full text in RTF
+}
+
+message SummarizeResponse { string summary = 1; }
+
+message RiskFinding {
+  string clause_text = 1;
+  string risk_type = 2;
+  string severity = 3; // Low, Medium, High
+  string rationale = 4;
+}
+
+message AnalyzeRiskResponse {
+  repeated RiskFinding findings = 1;
+  int32 low = 2;
+  int32 medium = 3;
+  int32 high = 4;
+}
+
+message ComplianceMatch {
+  string policy_id = 1;
+  string policy_name = 2;
+  string status = 3; // Compliant / Partial / Non-compliant
+  string evidence = 4;
+  string note = 5;
+}
+
+message CheckComplianceResponse {
+  repeated ComplianceMatch matches = 1;
+  int32 compliant = 2;
+  int32 partial = 3;
+  int32 non_compliant = 4;
+}
+
+message ChatRequest {
+  oneof source {
+    FileContent file = 1;      // direct file upload (existing)
+    S3Reference s3_ref = 4;    // S3 object reference (new)
+  }
+  string question = 3;
+  string session_id = 5; // maintain chat session across turns
+  // OCR params dihapus, server menggunakan default
+}
+
+message ChatResponse { string answer = 1; }
+
+
