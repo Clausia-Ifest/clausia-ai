@@ -7,7 +7,7 @@ from app.services.claude_service import (
     extract_target_metadata,
     summarize_text,
     analyze_risks,
-    check_compliance_pure_llm,
+    check_compliance,
     handle_chatbot_query,
     handle_chatbot_query_with_db,
 )
@@ -207,7 +207,7 @@ class ClausIAServicer(pbs.ClausIAServicer):
             return pb.CheckComplianceResponse()
         
         print(f"Retrieved text length for compliance: {len(text)} chars")
-        html_result = check_compliance_pure_llm(text)
+        html_result = check_compliance(text)
         
         # Kembalikan HTML sebagai single string di field pertama
         return pb.CheckComplianceResponse(
