@@ -260,7 +260,7 @@ def analyze_risks(text: str) -> dict:
     return {"findings": [], "summary_counts": {"Low": 0, "Medium": 0, "High": 0}, "error": str(last_error) if last_error else "model_unavailable"}
 
 
-def check_compliance_pure_llm(text: str) -> str:
+def check_compliance(text: str) -> str:
     """
     Compliance checker berbasis LLM dengan kebijakan perusahaan mock.
     Mengembalikan HTML string dengan hasil compliance check.
