@@ -3,7 +3,7 @@ from typing import Optional
 from fastapi import FastAPI, UploadFile, File, HTTPException, Request, Form
 from fastapi.responses import JSONResponse, HTMLResponse, Response
 from app.services.pdf_reader_service import extract_text_with_ocr
-from app.services.claude_service import extract_target_metadata, summarize_text, analyze_risks_pure_llm, handle_chatbot_query, check_compliance_pure_llm
+from app.services.claude_service import extract_target_metadata, summarize_text, analyze_risks, handle_chatbot_query, check_compliance
 
 # Inisialisasi aplikasi FastAPI agar dapat dideteksi oleh Uvicorn
 app = FastAPI()
@@ -222,7 +222,7 @@ async def analyze_risk(
         parallel=parallel,
     )
 
-    result = analyze_risks_pure_llm(text)
+    result = analyze_risks(text)
     counts = result.get("summary_counts", {})
     header = rf"\b Risk Analysis\b0\par Counts — Low: {counts.get('Low',0)}, Medium: {counts.get('Medium',0)}, High: {counts.get('High',0)}\par "
     items = []
@@ -274,7 +274,7 @@ async def check_compliance(
         parallel=parallel,
     )
 
-    result = check_compliance_pure_llm(text)
+    result = check_compliance(text)
     summary = result.get("summary", {})
     header = rf"\b Compliance Check\b0\par Compliant: {summary.get('Compliant',0)} | Partial: {summary.get('Partial',0)} | Non-compliant: {summary.get('Non-compliant',0)}\par "
     lines = []
