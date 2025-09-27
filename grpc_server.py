@@ -34,6 +34,29 @@ def _rtf_escape(text: str) -> str:
     return escaped
 
 
+def _text_to_html(text: str) -> str:
+    """Convert plain text to simple HTML format"""
+    if text is None:
+        return ""
+    
+    # Escape HTML special characters
+    html_escaped = (
+        text.replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace('"', "&quot;")
+        .replace("'", "&#x27;")
+    )
+    
+    # Convert line breaks to HTML
+    html_content = html_escaped.replace("\r\n", "\n").replace("\r", "\n").replace("\n", "<br/>")
+    
+    # Simple HTML format without DOCTYPE
+    html = f"<div><h3>Extracted Text</h3><p>{html_content}</p></div>"
+    
+    return html
+
+
 def _ocr_params(ocr: Optional[pb.OCRParams]):
     if not ocr:
         return {"language": "eng", "dpi": 300, "oem": 1, "psm": 6, "max_pages": None, "parallel": True}
@@ -75,8 +98,9 @@ class ClausIAServicer(pbs.ClausIAServicer):
             return pb.ExtractResponse()
         
         text = extract_text_with_ocr(pdf_bytes, **params)
-        rtf = r"{\rtf1\ansi " + r"\b Extracted Text\b0\par " + _rtf_escape(text) + "}"
-        return pb.ExtractResponse(text=rtf)
+        # Convert to HTML format instead of RTF
+        html = _text_to_html(text)
+        return pb.ExtractResponse(text=html)
 
     def ExtractMetadata(self, request: pb.ExtractRequest, context):
         # Gunakan default OCR params
