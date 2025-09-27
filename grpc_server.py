@@ -9,7 +9,6 @@ from app.services.claude_service import (
     analyze_risks,
     check_compliance,
     handle_chatbot_query,
-    handle_chatbot_query_with_db,
 )
 from app.services.s3_service import download_pdf_from_s3
 from app.services.database_service import get_contract_text_by_object_key, get_contract_text_by_id
@@ -238,15 +237,9 @@ class ClausIAServicer(pbs.ClausIAServicer):
         
         try:
             # Gunakan database session management
-            html_answer, confirmed_session_id = handle_chatbot_query_with_db(
+            html_answer, confirmed_session_id = handle_chatbot_query(
                 contract_id, question, session_id
             )
-            
-            # Bersihkan HTML code blocks jika ada
-            if html_answer.startswith("```html"):
-                html_answer = html_answer.strip("```html").strip("```")
-            elif html_answer.startswith("```"):
-                html_answer = html_answer.strip("```")
             
             print(f"Chat response generated, session_id: {confirmed_session_id}")
             return pb.ChatResponse(answer=html_answer)

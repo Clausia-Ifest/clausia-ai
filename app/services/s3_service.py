@@ -64,25 +64,3 @@ def download_pdf_from_s3(object_key: str) -> bytes | None:
     except Exception as e:
         print(f"Error downloading from S3: {e}")
         return None
-
-def upload_pdf_to_s3(pdf_bytes: bytes, object_key: str) -> bool:
-    """
-    Upload PDF bytes ke S3 dengan object key tertentu.
-    Returns True jika sukses, False jika gagal.
-    """
-    client = get_s3_client()
-    if not client:
-        return False
-    
-    try:
-        client.put_object(
-            Bucket=S3_BUCKET_NAME,
-            Key=object_key,
-            Body=pdf_bytes,
-            ContentType='application/pdf'
-        )
-        print(f"Successfully uploaded to S3 key: {object_key}")
-        return True
-    except Exception as e:
-        print(f"Error uploading to S3: {e}")
-        return False

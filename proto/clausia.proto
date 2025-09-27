@@ -5,7 +5,7 @@ package clausia;
 service ClausIA {
   rpc Extract (ExtractRequest) returns (ExtractResponse);
   rpc ExtractMetadata (ExtractRequest) returns (ExtractMetadataResponse);
-  rpc Summarize (ExtractRequest) returns (SummarizeResponse);
+  rpc Summarize (SummarizeRequest) returns (SummarizeResponse);
   rpc AnalyzeRisk (ExtractRequest) returns (AnalyzeRiskResponse);
   rpc CheckCompliance (ExtractRequest) returns (CheckComplianceResponse);
   rpc Chat (ChatRequest) returns (ChatResponse);
@@ -46,6 +46,10 @@ message ExtractMetadataResponse {
   string content = 2;         // OCR full text in RTF
 }
 
+message SummarizeRequest {
+  string contract_id = 1; // ID kontrak untuk mengambil content dari database
+}
+
 message SummarizeResponse { string summary = 1; }
 
 message RiskFinding {
@@ -60,6 +64,7 @@ message AnalyzeRiskResponse {
   int32 low = 2;
   int32 medium = 3;
   int32 high = 4;
+  int32 risk_level = 5; // 1=Low, 2=Medium, 3=High (overall assessment)
 }
 
 message ComplianceMatch {
@@ -78,13 +83,9 @@ message CheckComplianceResponse {
 }
 
 message ChatRequest {
-  oneof source {
-    FileContent file = 1;      // direct file upload (existing)
-    S3Reference s3_ref = 4;    // S3 object reference (new)
-  }
-  string question = 3;
-  string session_id = 5; // maintain chat session across turns
-  // OCR params dihapus, server menggunakan default
+  string contract_id = 1;      // ID kontrak untuk mengambil content dari database
+  string question = 2;
+  string session_id = 3;       // maintain chat session across turns
 }
 
 message ChatResponse { string answer = 1; }

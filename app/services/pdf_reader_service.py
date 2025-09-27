@@ -55,7 +55,7 @@ def _render_page_to_image(page: "fitz.Page", dpi: int) -> Image.Image:
 def extract_text_with_ocr(
     pdf_bytes: bytes,
     language: str = "eng",
-    dpi: int = 100,
+    dpi: int = 400,
     oem: int = 1,
     psm: int = 6,
     max_pages: Optional[int] = None,
