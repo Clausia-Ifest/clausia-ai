@@ -6,12 +6,13 @@ from app.services.pdf_reader_service import extract_text_with_ocr
 from app.services.claude_service import (
     extract_target_metadata,
     summarize_text,
-    analyze_risks_pure_llm,
+    analyze_risks,
     check_compliance_pure_llm,
     handle_chatbot_query,
+    handle_chatbot_query_with_db,
 )
 from app.services.s3_service import download_pdf_from_s3
-from app.services.database_service import get_contract_text_by_object_key
+from app.services.database_service import get_contract_text_by_object_key, get_contract_text_by_id
 
 # Support both layouts: generated files inside package 'proto/' or at project root
 try:
@@ -101,100 +102,160 @@ class ClausIAServicer(pbs.ClausIAServicer):
             content=(r"{\\rtf1\\ansi " + r"\\b Extracted Text\\b0\\par " + _rtf_escape(text) + "}"),
         )
 
-    def Summarize(self, request: pb.ExtractRequest, context):
-        # Gunakan default OCR params
-        params = {"language": "eng", "dpi": 100, "oem": 1, "psm": 6, "max_pages": None, "parallel": True}
-        pdf_bytes = _get_pdf_bytes(request)
-        if not pdf_bytes:
+    def Summarize(self, request: pb.SummarizeRequest, context):
+        # Ambil teks dari database berdasarkan contract_id
+        contract_id = request.contract_id
+        if not contract_id:
             context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
-            context.set_details("No valid file source provided (file or s3_ref)")
+            context.set_details("Summarize requires contract_id")
             return pb.SummarizeResponse()
         
-        text = extract_text_with_ocr(pdf_bytes, **params)
-        summary = summarize_text(text, language_hint="id")
-        rtf = r"{\rtf1\ansi " + r"\b Summary\b0\par " + _rtf_escape(summary) + "}"
-        return pb.SummarizeResponse(summary=rtf)
+        print(f"Retrieving contract text for summarize, contract_id: {contract_id}")
+        
+        try:
+            # Ambil teks dari database berdasarkan contract_id
+            text = get_contract_text_by_id(contract_id)
+            if not text:
+                context.set_code(grpc.StatusCode.NOT_FOUND)
+                context.set_details(f"Contract text not found in database for contract_id: {contract_id}")
+                return pb.SummarizeResponse()
+        except Exception as e:
+            print(f"Error in Summarize: {e}")
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(f"Internal error: {str(e)}")
+            return pb.SummarizeResponse()
+        
+        print(f"Retrieved text length for summarize: {len(text)} chars")
+        html_summary = summarize_text(text, language_hint="id")
+        
+        # Bersihkan HTML code blocks jika ada
+        if html_summary.startswith("```html"):
+            html_summary = html_summary.strip("```html").strip("```")
+        elif html_summary.startswith("```"):
+            html_summary = html_summary.strip("```")
+        
+        return pb.SummarizeResponse(summary=html_summary)
 
     def AnalyzeRisk(self, request: pb.ExtractRequest, context):
         # Skip OCR, ambil teks dari database berdasarkan object_key
-        if not (hasattr(request, 's3_ref') and request.HasField('s3_ref')):
-            if request.WhichOneof('source') != 's3_ref':
+        try:
+            source_type = request.WhichOneof('source')
+            if source_type != 's3_ref':
                 context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
                 context.set_details("AnalyzeRisk requires s3_ref.object_key (no file upload support)")
                 return pb.AnalyzeRiskResponse()
-        
-        object_key = request.s3_ref.object_key
-        print(f"Retrieving contract text for object_key: {object_key}")
-        
-        # Ambil teks dari database (sudah di-OCR sebelumnya)
-        text = get_contract_text_by_object_key(object_key)
-        if not text:
-            context.set_code(grpc.StatusCode.NOT_FOUND)
-            context.set_details(f"Contract text not found in database for object_key: {object_key}")
+            
+            object_key = request.s3_ref.object_key
+            print(f"Retrieving contract text for object_key: {object_key}")
+            
+            # Ambil teks dari database (sudah di-OCR sebelumnya)
+            text = get_contract_text_by_object_key(object_key)
+            if not text:
+                context.set_code(grpc.StatusCode.NOT_FOUND)
+                context.set_details(f"Contract text not found in database for object_key: {object_key}")
+                return pb.AnalyzeRiskResponse()
+        except Exception as e:
+            print(f"Error in AnalyzeRisk: {e}")
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(f"Internal error: {str(e)}")
             return pb.AnalyzeRiskResponse()
         
         print(f"Retrieved text length: {len(text)} chars")
         print(f"Text preview: {text[:200]}...")
         
-        result = analyze_risks_pure_llm(text)
+        result = analyze_risks(text)
         print(f"Risk analysis result: {len(result.get('findings', []))} findings")
         findings = []
         for f in result.get("findings", []):
-            r_clause = r"{\rtf1\ansi " + _rtf_escape(f.get("clause_text", "")) + "}"
-            r_rationale = r"{\rtf1\ansi " + _rtf_escape(f.get("rationale", "")) + "}"
+            # clause_text sudah dalam format HTML, kirim apa adanya
             findings.append(pb.RiskFinding(
-                clause_text=r_clause,
+                clause_text=f.get("clause_text", ""),
                 risk_type=f.get("risk_type", ""),
                 severity=f.get("severity", ""),
-                rationale=r_rationale,
+                rationale=f.get("rationale", ""),  # rationale sekarang berisi rekomendasi
             ))
         return pb.AnalyzeRiskResponse(
             findings=findings,
             low=result.get("summary_counts", {}).get("Low", 0),
             medium=result.get("summary_counts", {}).get("Medium", 0),
             high=result.get("summary_counts", {}).get("High", 0),
+            risk_level=result.get("overall_risk_level", 1),
         )
 
     def CheckCompliance(self, request: pb.ExtractRequest, context):
-        # Gunakan default OCR params
-        params = {"language": "eng", "dpi": 100, "oem": 1, "psm": 6, "max_pages": None, "parallel": True}
-        pdf_bytes = _get_pdf_bytes(request)
-        if not pdf_bytes:
-            context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
-            context.set_details("No valid file source provided (file or s3_ref)")
+        # Skip OCR, ambil teks dari database berdasarkan object_key
+        try:
+            source_type = request.WhichOneof('source')
+            if source_type != 's3_ref':
+                context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
+                context.set_details("CheckCompliance requires s3_ref.object_key (no file upload support)")
+                return pb.CheckComplianceResponse()
+            
+            object_key = request.s3_ref.object_key
+            print(f"Retrieving contract text for compliance check, object_key: {object_key}")
+            
+            # Ambil teks dari database (sudah di-OCR sebelumnya)
+            text = get_contract_text_by_object_key(object_key)
+            if not text:
+                context.set_code(grpc.StatusCode.NOT_FOUND)
+                context.set_details(f"Contract text not found in database for object_key: {object_key}")
+                return pb.CheckComplianceResponse()
+        except Exception as e:
+            print(f"Error in CheckCompliance: {e}")
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(f"Internal error: {str(e)}")
             return pb.CheckComplianceResponse()
         
-        text = extract_text_with_ocr(pdf_bytes, **params)
-        result = check_compliance_pure_llm(text)
-        matches = []
-        for m in result.get("matches", []):
-            matches.append(pb.ComplianceMatch(
-                policy_id=m.get("policy_id", ""),
-                policy_name=m.get("policy_name", ""),
-                status=m.get("status", ""),
-                evidence=r"{\rtf1\ansi " + _rtf_escape(m.get("evidence", "")) + "}",
-                note=r"{\rtf1\ansi " + _rtf_escape(m.get("note", "")) + "}",
-            ))
+        print(f"Retrieved text length for compliance: {len(text)} chars")
+        html_result = check_compliance_pure_llm(text)
+        
+        # Kembalikan HTML sebagai single string di field pertama
         return pb.CheckComplianceResponse(
-            matches=matches,
-            compliant=result.get("summary", {}).get("Compliant", 0),
-            partial=result.get("summary", {}).get("Partial", 0),
-            non_compliant=result.get("summary", {}).get("Non-compliant", 0),
+            matches=[pb.ComplianceMatch(
+                policy_id="html_result",
+                policy_name=html_result,  # HTML result dalam field policy_name
+                status="",
+                evidence="",
+                note="",
+            )],
+            compliant=0,
+            partial=0,
+            non_compliant=0,
         )
 
     def Chat(self, request: pb.ChatRequest, context):
-        # Gunakan default OCR params
-        params = {"language": "eng", "dpi": 100, "oem": 1, "psm": 6, "max_pages": None, "parallel": True}
-        pdf_bytes = _get_pdf_bytes(request)
-        if not pdf_bytes:
+        # Gunakan database session management dengan contract_id
+        contract_id = request.contract_id
+        if not contract_id:
             context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
-            context.set_details("No valid file source provided (file or s3_ref)")
+            context.set_details("Chat requires contract_id")
             return pb.ChatResponse()
         
-        text = extract_text_with_ocr(pdf_bytes, **params)
-        answer = handle_chatbot_query(text, request.question, session_id=(request.session_id or None))
-        rtf = r"{\rtf1\ansi " + r"\b Q&A\b0\par " + r"\b Question:\b0 " + _rtf_escape(request.question) + r"\par " + r"\b Answer:\b0 " + _rtf_escape(answer) + "}"
-        return pb.ChatResponse(answer=rtf)
+        question = request.question
+        session_id = request.session_id or None
+        
+        print(f"Chat request - contract_id: {contract_id}, question: {question[:50]}...")
+        
+        try:
+            # Gunakan database session management
+            html_answer, confirmed_session_id = handle_chatbot_query_with_db(
+                contract_id, question, session_id
+            )
+            
+            # Bersihkan HTML code blocks jika ada
+            if html_answer.startswith("```html"):
+                html_answer = html_answer.strip("```html").strip("```")
+            elif html_answer.startswith("```"):
+                html_answer = html_answer.strip("```")
+            
+            print(f"Chat response generated, session_id: {confirmed_session_id}")
+            return pb.ChatResponse(answer=html_answer)
+            
+        except Exception as e:
+            print(f"Error in Chat: {e}")
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(f"Internal error: {str(e)}")
+            return pb.ChatResponse()
 
 
 def serve(port: int = 50051):

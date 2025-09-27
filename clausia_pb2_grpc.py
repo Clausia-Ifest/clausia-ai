@@ -46,12 +46,12 @@ class ClausIAStub(object):
                 _registered_method=True)
         self.Summarize = channel.unary_unary(
                 '/clausia.ClausIA/Summarize',
-                request_serializer=clausia__pb2.ExtractRequest.SerializeToString,
+                request_serializer=clausia__pb2.SummarizeRequest.SerializeToString,
                 response_deserializer=clausia__pb2.SummarizeResponse.FromString,
                 _registered_method=True)
         self.AnalyzeRisk = channel.unary_unary(
                 '/clausia.ClausIA/AnalyzeRisk',
-                request_serializer=clausia__pb2.TextOnlyRequest.SerializeToString,
+                request_serializer=clausia__pb2.ExtractRequest.SerializeToString,
                 response_deserializer=clausia__pb2.AnalyzeRiskResponse.FromString,
                 _registered_method=True)
         self.CheckCompliance = channel.unary_unary(
@@ -120,12 +120,12 @@ def add_ClausIAServicer_to_server(servicer, server):
             ),
             'Summarize': grpc.unary_unary_rpc_method_handler(
                     servicer.Summarize,
-                    request_deserializer=clausia__pb2.ExtractRequest.FromString,
+                    request_deserializer=clausia__pb2.SummarizeRequest.FromString,
                     response_serializer=clausia__pb2.SummarizeResponse.SerializeToString,
             ),
             'AnalyzeRisk': grpc.unary_unary_rpc_method_handler(
                     servicer.AnalyzeRisk,
-                    request_deserializer=clausia__pb2.TextOnlyRequest.FromString,
+                    request_deserializer=clausia__pb2.ExtractRequest.FromString,
                     response_serializer=clausia__pb2.AnalyzeRiskResponse.SerializeToString,
             ),
             'CheckCompliance': grpc.unary_unary_rpc_method_handler(
@@ -218,7 +218,7 @@ class ClausIA(object):
             request,
             target,
             '/clausia.ClausIA/Summarize',
-            clausia__pb2.ExtractRequest.SerializeToString,
+            clausia__pb2.SummarizeRequest.SerializeToString,
             clausia__pb2.SummarizeResponse.FromString,
             options,
             channel_credentials,
@@ -245,7 +245,7 @@ class ClausIA(object):
             request,
             target,
             '/clausia.ClausIA/AnalyzeRisk',
-            clausia__pb2.TextOnlyRequest.SerializeToString,
+            clausia__pb2.ExtractRequest.SerializeToString,
             clausia__pb2.AnalyzeRiskResponse.FromString,
             options,
             channel_credentials,

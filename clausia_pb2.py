@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rclausia.proto\x12\x07\x63lausia\"-\n\x0b\x46ileContent\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\x12\x10\n\x08\x66ilename\x18\x02 \x01(\t\"!\n\x0bS3Reference\x12\x12\n\nobject_key\x18\x01 \x01(\t\"e\n\tOCRParams\x12\x0c\n\x04lang\x18\x01 \x01(\t\x12\x0b\n\x03\x64pi\x18\x02 \x01(\x05\x12\x0b\n\x03oem\x18\x03 \x01(\x05\x12\x0b\n\x03psm\x18\x04 \x01(\x05\x12\x11\n\tmax_pages\x18\x05 \x01(\x05\x12\x10\n\x08parallel\x18\x06 \x01(\x08\"h\n\x0e\x45xtractRequest\x12$\n\x04\x66ile\x18\x01 \x01(\x0b\x32\x14.clausia.FileContentH\x00\x12&\n\x06s3_ref\x18\x03 \x01(\x0b\x32\x14.clausia.S3ReferenceH\x00\x42\x08\n\x06source\"\x1f\n\x0fTextOnlyRequest\x12\x0c\n\x04text\x18\x01 \x01(\t\"\x1f\n\x0f\x45xtractResponse\x12\x0c\n\x04text\x18\x01 \x01(\t\"<\n\x17\x45xtractMetadataResponse\x12\x10\n\x08metadata\x18\x01 \x01(\t\x12\x0f\n\x07\x63ontent\x18\x02 \x01(\t\"$\n\x11SummarizeResponse\x12\x0f\n\x07summary\x18\x01 \x01(\t\"Z\n\x0bRiskFinding\x12\x13\n\x0b\x63lause_text\x18\x01 \x01(\t\x12\x11\n\trisk_type\x18\x02 \x01(\t\x12\x10\n\x08severity\x18\x03 \x01(\t\x12\x11\n\trationale\x18\x04 \x01(\t\"h\n\x13\x41nalyzeRiskResponse\x12&\n\x08\x66indings\x18\x01 \x03(\x0b\x32\x14.clausia.RiskFinding\x12\x0b\n\x03low\x18\x02 \x01(\x05\x12\x0e\n\x06medium\x18\x03 \x01(\x05\x12\x0c\n\x04high\x18\x04 \x01(\x05\"i\n\x0f\x43omplianceMatch\x12\x11\n\tpolicy_id\x18\x01 \x01(\t\x12\x13\n\x0bpolicy_name\x18\x02 \x01(\t\x12\x0e\n\x06status\x18\x03 \x01(\t\x12\x10\n\x08\x65vidence\x18\x04 \x01(\t\x12\x0c\n\x04note\x18\x05 \x01(\t\"\x7f\n\x17\x43heckComplianceResponse\x12)\n\x07matches\x18\x01 \x03(\x0b\x32\x18.clausia.ComplianceMatch\x12\x11\n\tcompliant\x18\x02 \x01(\x05\x12\x0f\n\x07partial\x18\x03 \x01(\x05\x12\x15\n\rnon_compliant\x18\x04 \x01(\x05\"\x8b\x01\n\x0b\x43hatRequest\x12$\n\x04\x66ile\x18\x01 \x01(\x0b\x32\x14.clausia.FileContentH\x00\x12&\n\x06s3_ref\x18\x04 \x01(\x0b\x32\x14.clausia.S3ReferenceH\x00\x12\x10\n\x08question\x18\x03 \x01(\t\x12\x12\n\nsession_id\x18\x05 \x01(\tB\x08\n\x06source\"\x1e\n\x0c\x43hatResponse\x12\x0e\n\x06\x61nswer\x18\x01 \x01(\t2\xa1\x03\n\x07\x43lausIA\x12<\n\x07\x45xtract\x12\x17.clausia.ExtractRequest\x1a\x18.clausia.ExtractResponse\x12L\n\x0f\x45xtractMetadata\x12\x17.clausia.ExtractRequest\x1a .clausia.ExtractMetadataResponse\x12@\n\tSummarize\x12\x17.clausia.ExtractRequest\x1a\x1a.clausia.SummarizeResponse\x12\x45\n\x0b\x41nalyzeRisk\x12\x18.clausia.TextOnlyRequest\x1a\x1c.clausia.AnalyzeRiskResponse\x12L\n\x0f\x43heckCompliance\x12\x17.clausia.ExtractRequest\x1a .clausia.CheckComplianceResponse\x12\x33\n\x04\x43hat\x12\x14.clausia.ChatRequest\x1a\x15.clausia.ChatResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rclausia.proto\x12\x07\x63lausia\"-\n\x0b\x46ileContent\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\x12\x10\n\x08\x66ilename\x18\x02 \x01(\t\"!\n\x0bS3Reference\x12\x12\n\nobject_key\x18\x01 \x01(\t\"e\n\tOCRParams\x12\x0c\n\x04lang\x18\x01 \x01(\t\x12\x0b\n\x03\x64pi\x18\x02 \x01(\x05\x12\x0b\n\x03oem\x18\x03 \x01(\x05\x12\x0b\n\x03psm\x18\x04 \x01(\x05\x12\x11\n\tmax_pages\x18\x05 \x01(\x05\x12\x10\n\x08parallel\x18\x06 \x01(\x08\"h\n\x0e\x45xtractRequest\x12$\n\x04\x66ile\x18\x01 \x01(\x0b\x32\x14.clausia.FileContentH\x00\x12&\n\x06s3_ref\x18\x03 \x01(\x0b\x32\x14.clausia.S3ReferenceH\x00\x42\x08\n\x06source\"\x1f\n\x0f\x45xtractResponse\x12\x0c\n\x04text\x18\x01 \x01(\t\"<\n\x17\x45xtractMetadataResponse\x12\x10\n\x08metadata\x18\x01 \x01(\t\x12\x0f\n\x07\x63ontent\x18\x02 \x01(\t\"\'\n\x10SummarizeRequest\x12\x13\n\x0b\x63ontract_id\x18\x01 \x01(\t\"$\n\x11SummarizeResponse\x12\x0f\n\x07summary\x18\x01 \x01(\t\"Z\n\x0bRiskFinding\x12\x13\n\x0b\x63lause_text\x18\x01 \x01(\t\x12\x11\n\trisk_type\x18\x02 \x01(\t\x12\x10\n\x08severity\x18\x03 \x01(\t\x12\x11\n\trationale\x18\x04 \x01(\t\"|\n\x13\x41nalyzeRiskResponse\x12&\n\x08\x66indings\x18\x01 \x03(\x0b\x32\x14.clausia.RiskFinding\x12\x0b\n\x03low\x18\x02 \x01(\x05\x12\x0e\n\x06medium\x18\x03 \x01(\x05\x12\x0c\n\x04high\x18\x04 \x01(\x05\x12\x12\n\nrisk_level\x18\x05 \x01(\x05\"i\n\x0f\x43omplianceMatch\x12\x11\n\tpolicy_id\x18\x01 \x01(\t\x12\x13\n\x0bpolicy_name\x18\x02 \x01(\t\x12\x0e\n\x06status\x18\x03 \x01(\t\x12\x10\n\x08\x65vidence\x18\x04 \x01(\t\x12\x0c\n\x04note\x18\x05 \x01(\t\"\x7f\n\x17\x43heckComplianceResponse\x12)\n\x07matches\x18\x01 \x03(\x0b\x32\x18.clausia.ComplianceMatch\x12\x11\n\tcompliant\x18\x02 \x01(\x05\x12\x0f\n\x07partial\x18\x03 \x01(\x05\x12\x15\n\rnon_compliant\x18\x04 \x01(\x05\"H\n\x0b\x43hatRequest\x12\x13\n\x0b\x63ontract_id\x18\x01 \x01(\t\x12\x10\n\x08question\x18\x02 \x01(\t\x12\x12\n\nsession_id\x18\x03 \x01(\t\"\x1e\n\x0c\x43hatResponse\x12\x0e\n\x06\x61nswer\x18\x01 \x01(\t2\xa2\x03\n\x07\x43lausIA\x12<\n\x07\x45xtract\x12\x17.clausia.ExtractRequest\x1a\x18.clausia.ExtractResponse\x12L\n\x0f\x45xtractMetadata\x12\x17.clausia.ExtractRequest\x1a .clausia.ExtractMetadataResponse\x12\x42\n\tSummarize\x12\x19.clausia.SummarizeRequest\x1a\x1a.clausia.SummarizeResponse\x12\x44\n\x0b\x41nalyzeRisk\x12\x17.clausia.ExtractRequest\x1a\x1c.clausia.AnalyzeRiskResponse\x12L\n\x0f\x43heckCompliance\x12\x17.clausia.ExtractRequest\x1a .clausia.CheckComplianceResponse\x12\x33\n\x04\x43hat\x12\x14.clausia.ChatRequest\x1a\x15.clausia.ChatResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -39,26 +39,26 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_OCRPARAMS']._serialized_end=209
   _globals['_EXTRACTREQUEST']._serialized_start=211
   _globals['_EXTRACTREQUEST']._serialized_end=315
-  _globals['_TEXTONLYREQUEST']._serialized_start=317
-  _globals['_TEXTONLYREQUEST']._serialized_end=348
-  _globals['_EXTRACTRESPONSE']._serialized_start=350
-  _globals['_EXTRACTRESPONSE']._serialized_end=381
-  _globals['_EXTRACTMETADATARESPONSE']._serialized_start=383
-  _globals['_EXTRACTMETADATARESPONSE']._serialized_end=443
-  _globals['_SUMMARIZERESPONSE']._serialized_start=445
-  _globals['_SUMMARIZERESPONSE']._serialized_end=481
-  _globals['_RISKFINDING']._serialized_start=483
-  _globals['_RISKFINDING']._serialized_end=573
-  _globals['_ANALYZERISKRESPONSE']._serialized_start=575
-  _globals['_ANALYZERISKRESPONSE']._serialized_end=679
-  _globals['_COMPLIANCEMATCH']._serialized_start=681
-  _globals['_COMPLIANCEMATCH']._serialized_end=786
-  _globals['_CHECKCOMPLIANCERESPONSE']._serialized_start=788
-  _globals['_CHECKCOMPLIANCERESPONSE']._serialized_end=915
-  _globals['_CHATREQUEST']._serialized_start=918
-  _globals['_CHATREQUEST']._serialized_end=1057
-  _globals['_CHATRESPONSE']._serialized_start=1059
-  _globals['_CHATRESPONSE']._serialized_end=1089
-  _globals['_CLAUSIA']._serialized_start=1092
-  _globals['_CLAUSIA']._serialized_end=1509
+  _globals['_EXTRACTRESPONSE']._serialized_start=317
+  _globals['_EXTRACTRESPONSE']._serialized_end=348
+  _globals['_EXTRACTMETADATARESPONSE']._serialized_start=350
+  _globals['_EXTRACTMETADATARESPONSE']._serialized_end=410
+  _globals['_SUMMARIZEREQUEST']._serialized_start=412
+  _globals['_SUMMARIZEREQUEST']._serialized_end=451
+  _globals['_SUMMARIZERESPONSE']._serialized_start=453
+  _globals['_SUMMARIZERESPONSE']._serialized_end=489
+  _globals['_RISKFINDING']._serialized_start=491
+  _globals['_RISKFINDING']._serialized_end=581
+  _globals['_ANALYZERISKRESPONSE']._serialized_start=583
+  _globals['_ANALYZERISKRESPONSE']._serialized_end=707
+  _globals['_COMPLIANCEMATCH']._serialized_start=709
+  _globals['_COMPLIANCEMATCH']._serialized_end=814
+  _globals['_CHECKCOMPLIANCERESPONSE']._serialized_start=816
+  _globals['_CHECKCOMPLIANCERESPONSE']._serialized_end=943
+  _globals['_CHATREQUEST']._serialized_start=945
+  _globals['_CHATREQUEST']._serialized_end=1017
+  _globals['_CHATRESPONSE']._serialized_start=1019
+  _globals['_CHATRESPONSE']._serialized_end=1049
+  _globals['_CLAUSIA']._serialized_start=1052
+  _globals['_CLAUSIA']._serialized_end=1470
 # @@protoc_insertion_point(module_scope)
