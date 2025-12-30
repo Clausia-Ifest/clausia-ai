@@ -3,6 +3,4 @@ __pycache__/
 *.pyc
 venv/
 .pytest_cache/
-
-# Files to ignore
-.env                  # JANGAN UNGGAH FILE INI KE GITHUB
+.env
